@@ -12,12 +12,27 @@ public class Order implements Serializable {
 	private String date;
 	private Currency source;
 	private Currency destination;
+	private Type type;
 	private BuySell buySell;
 	
 	public Order() {
 		
 	}
 	
+	public Order(int quantity, float price, String date, Currency source, Currency destination, Type type,
+			BuySell buySell) {
+		super();
+		this.quantity = quantity;
+		this.price = price;
+		this.date = date;
+		this.source = source;
+		this.destination = destination;
+		this.type = type;
+		this.buySell = buySell;
+	}
+
+
+
 	public long getId() {
 		return id;
 	}
@@ -59,6 +74,14 @@ public class Order implements Serializable {
 	}
 	public void setBuySell(BuySell buySell) {
 		this.buySell = buySell;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
 	}
 	
 	

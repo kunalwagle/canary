@@ -10,8 +10,8 @@ import com.creditsuisse.london.forex_trader.orders.Order;
 public class OrderController {
 	
 	@RequestMapping(path="/placeorder",method=RequestMethod.POST)
-	public Order addOrder() {
-		Order order = new Order();
+	public Order addOrder(Order order) {
+		order = new Order();
 		order.setPrice(100);
 		return order;
 	}
