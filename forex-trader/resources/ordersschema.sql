@@ -1,0 +1,2 @@
+drop table ORDERS if exists;
+create table ORDERS(ID bigint(20) NOT NULL AUTO_INCREMENT, SOURCE_CURRENCY varchar, DEST_CURRRENCY varchar, QUANTITY int, PRICE float, DATE_TIME varchar, SIDE varchar, TOTAL float, TYPE_OF_TRADE varchar)
