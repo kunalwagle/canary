@@ -6,7 +6,8 @@ public class Order {
 	private int quantity;
 	private float price;
 	private String date;
-	private Currency currency;
+	private Currency sourceCurrency;
+	private Currency destinationCurrency;
 	private BuySell buySell;
 	private float total;
 	
@@ -38,12 +39,20 @@ public class Order {
 	public void setDate(String date) {
 		this.date = date;
 	}
-	public Currency getCurrency() {
-		return currency;
+	public Currency getSourceCurrency() {
+		return sourceCurrency;
 	}
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
+	public void setsourceCurrency(Currency currency) {
+		this.sourceCurrency = currency;
 	}
+	
+	public Currency getdestinationCurrency() {
+		return destinationCurrency;
+	}
+	public void setdestinationCurrency(Currency currency) {
+		this.destinationCurrency = currency;
+	}
+	
 	public BuySell getBuySell() {
 		return buySell;
 	}
