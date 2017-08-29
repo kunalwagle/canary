@@ -9,11 +9,15 @@ import com.creditsuisse.london.forex_trader.orders.Order;
 @RestController
 public class OrderController {
 	
-	@RequestMapping(path="/placeorder",method=RequestMethod.POST)
+	@RequestMapping(path="/addorder",method=RequestMethod.POST)
 	public Order addOrder(Order order) {
-		order = new Order();
-		order.setPrice(100);
+		String result = dataValidation(order);
 		return order;
+	}
+
+	private String dataValidation(Order order) {
+		String responseString = null;
+		return null;
 	}
 
 }
