@@ -9,6 +9,7 @@ public class Order {
 	private Currency sourceCurrency;
 	private Currency destinationCurrency;
 	private BuySell buySell;
+	private Type typeOfTrade;
 	private float total;
 	
 	public Order() {
@@ -42,15 +43,22 @@ public class Order {
 	public Currency getSourceCurrency() {
 		return sourceCurrency;
 	}
-	public void setsourceCurrency(Currency currency) {
+	public void setSourceCurrency(Currency currency) {
 		this.sourceCurrency = currency;
 	}
 	
-	public Currency getdestinationCurrency() {
+	public Currency getDestinationCurrency() {
 		return destinationCurrency;
 	}
-	public void setdestinationCurrency(Currency currency) {
+	public void setDestinationCurrency(Currency currency) {
 		this.destinationCurrency = currency;
+	}
+	
+	public Type getTypeOfTrade() {
+		return typeOfTrade;
+	}
+	public void setTypeOfTrade(Type type) {
+		this.typeOfTrade = type;
 	}
 	
 	public BuySell getBuySell() {
