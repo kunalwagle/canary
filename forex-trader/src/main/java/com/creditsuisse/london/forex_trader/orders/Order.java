@@ -10,9 +10,9 @@ public class Order implements Serializable {
 	private int quantity;
 	private float price;
 	private String date;
-	private Currency currency;
+	private Currency source;
+	private Currency destination;
 	private BuySell buySell;
-	private float total;
 	
 	public Order() {
 		
@@ -42,23 +42,23 @@ public class Order implements Serializable {
 	public void setDate(String date) {
 		this.date = date;
 	}
-	public Currency getCurrency() {
-		return currency;
+	public Currency getSource() {
+		return source;
 	}
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
+	public void setSource(Currency currency) {
+		this.source = currency;
+	}
+	public Currency getDestination() {
+		return destination;
+	}
+	public void setDestination(Currency currency) {
+		this.destination = currency;
 	}
 	public BuySell getBuySell() {
 		return buySell;
 	}
 	public void setBuySell(BuySell buySell) {
 		this.buySell = buySell;
-	}
-	public float getTotal() {
-		return total;
-	}
-	public void setTotal(float total) {
-		this.total = total;
 	}
 	
 	
