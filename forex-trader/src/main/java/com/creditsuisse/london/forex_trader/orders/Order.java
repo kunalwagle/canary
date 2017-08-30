@@ -2,21 +2,37 @@ package com.creditsuisse.london.forex_trader.orders;
 
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class Order implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private long id;
+	
 	private int quantity;
 	private float price;
 	private String date;
+	
+	@Enumerated(EnumType.STRING)
 	private Currency source;
+	@Enumerated(EnumType.STRING)
 	private Currency destination;
+	@Enumerated(EnumType.STRING)
 	private Type type;
+	@Enumerated(EnumType.STRING)
 	private BuySell buySell;
 	
 	public Order() {
-		
+		super();
 	}
 	
 	public Order(int quantity, float price, String date, Currency source, Currency destination, Type type,

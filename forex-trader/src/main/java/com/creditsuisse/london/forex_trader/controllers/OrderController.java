@@ -9,9 +9,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.creditsuisse.london.forex_trader.orders.Order;
 import com.creditsuisse.london.forex_trader.orders.OrderError;
+import com.creditsuisse.london.forex_trader.repositories.OrderRepository;
 
 @RestController
 public class OrderController {
+	
+	private final OrderRepository orderRepository;
+	
+	public OrderController(OrderRepository orderRepository) {
+		this.orderRepository = orderRepository;
+	}
 	
 	@RequestMapping(path="/addorder",method=RequestMethod.POST)
 	public Object addOrder(@RequestBody Order order) {
@@ -19,6 +26,7 @@ public class OrderController {
 		if (errorType != null) {
 			return new ResponseEntity<OrderError>(errorType, HttpStatus.BAD_REQUEST);
 		}
+		orderRepository.save(order);
 		return new ResponseEntity<Order>(order, HttpStatus.ACCEPTED);
 	}
 
