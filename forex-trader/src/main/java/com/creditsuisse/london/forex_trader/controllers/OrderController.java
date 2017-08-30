@@ -23,7 +23,7 @@ public class OrderController {
 	}
 
 	private OrderError generateDataErrorString(Order order) {
-		if (order.getQuantity() < 1) {
+		if (order.getQuantity() <= 0) {
 			return OrderError.QUANTITY_ZERO;
 		}
 		
@@ -33,6 +33,10 @@ public class OrderController {
 		
 		if (order.getSource() == order.getDestination()) {
 			return OrderError.CURRENCY_IDENTICAL;
+		}
+		
+		if (order.getPrice() <= 0) {
+			return OrderError.PRICE_ZERO;
 		}
 		
 		return null;
