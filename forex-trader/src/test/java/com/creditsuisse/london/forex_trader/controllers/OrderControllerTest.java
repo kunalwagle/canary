@@ -68,5 +68,29 @@ public class OrderControllerTest {
 		.as(OrderError.class);
 		Assert.assertEquals(error, OrderError.QUANTITY_ZERO);
 	}
+	
+	@Test
+	public void sourceCurrencyMustExist() {
+		happyOrder.setSource(null);
+		OrderError error = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyOrder)
+		.when()
+		.post("/addorder")
+		.as(OrderError.class);
+		Assert.assertEquals(error, OrderError.CURRENCY_MISSING);
+	}
+	
+	@Test
+	public void destinationCurrencyMustExist() {
+		happyOrder.setDestination(null);
+		OrderError error = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyOrder)
+		.when()
+		.post("/addorder")
+		.as(OrderError.class);
+		Assert.assertEquals(error, OrderError.CURRENCY_MISSING);
+	}
 
 }

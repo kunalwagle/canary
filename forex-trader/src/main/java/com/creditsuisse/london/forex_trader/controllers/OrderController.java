@@ -27,6 +27,10 @@ public class OrderController {
 			return OrderError.QUANTITY_ZERO;
 		}
 		
+		if (order.getSource() == null || order.getDestination() == null) {
+			return OrderError.CURRENCY_MISSING;
+		}
+		
 		return null;
 	}
 
