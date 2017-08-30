@@ -17,9 +17,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.creditsuisse.london.forex_trader.App;
 import com.creditsuisse.london.forex_trader.orders.BuySell;
 import com.creditsuisse.london.forex_trader.orders.Currency;
-import com.creditsuisse.london.forex_trader.orders.Order;
+import com.creditsuisse.london.forex_trader.orders.ForexOrder;
 import com.creditsuisse.london.forex_trader.orders.OrderError;
-import com.creditsuisse.london.forex_trader.orders.Type;
+import com.creditsuisse.london.forex_trader.orders.TradeType;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -28,7 +28,8 @@ import io.restassured.http.ContentType;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class OrderControllerTest {
     
-    private Order happyOrder;
+    private ForexOrder happyMarketOrder;
+    private ForexOrder happyLimitOrder;
     
     @LocalServerPort
     private int port;
@@ -36,33 +37,39 @@ public class OrderControllerTest {
     @Before
     public void initialise() {
     	RestAssured.port = port;
-    	happyOrder = new Order(3, 10, "2015-10-04_18:00:00.050", Currency.USD, Currency.GBP, Type.MARKET, BuySell.BUY);
+    	happyMarketOrder = new ForexOrder(3, 10, "2015-10-04_18:00:00.050", Currency.USD, Currency.GBP, TradeType.MARKET, BuySell.BUY);
+    	happyLimitOrder = new ForexOrder(6, 22, "2016-10-09_13:14:00.050", Currency.USD, Currency.GBP, TradeType.LIMIT, BuySell.SELL);
     }
-	
-	@Test
-	public void returnsCorrectOrderForValidData() {
-		Order order = RestAssured.given()
-		.contentType(ContentType.JSON)
-		.body(happyOrder)
-		.when()
-		.post("/addorder")
-		.as(Order.class);
-		
-		Assert.assertEquals(order.getPrice(), happyOrder.getPrice(), 0.0);
+    
+    private void ordersMatch(ForexOrder order, ForexOrder happyOrder) {
+    	Assert.assertEquals(order.getPrice(), happyOrder.getPrice(), 0.0);
 		Assert.assertEquals(order.getQuantity(), happyOrder.getQuantity(), 0);
-		Assert.assertEquals(order.getDate(), happyOrder.getDate());
+		Assert.assertEquals(order.getTradeDate(), happyOrder.getTradeDate());
 		Assert.assertEquals(order.getBuySell(), happyOrder.getBuySell());
 		Assert.assertEquals(order.getDestination(), happyOrder.getDestination());
 		Assert.assertEquals(order.getSource(), happyOrder.getSource());
-		Assert.assertEquals(order.getType(), happyOrder.getType());
+		Assert.assertEquals(order.getTradeType(), happyOrder.getTradeType());
+    }
+	
+	@Test
+	public void returnsCorrectOrderForValidDataForMarketOrder() {
+		ForexOrder order = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyMarketOrder)
+		.when()
+		.post("/addorder")
+		.as(ForexOrder.class);
+		
+		ordersMatch(order, happyMarketOrder);
+		
 	}
 	
 	@Test
-	public void quantityFailsWhenZero() {
-		happyOrder.setQuantity(0);
+	public void quantityFailsWhenZeroForMarketOrder() {
+		happyMarketOrder.setQuantity(0);
 		OrderError error = RestAssured.given()
 		.contentType(ContentType.JSON)
-		.body(happyOrder)
+		.body(happyMarketOrder)
 		.when()
 		.post("/addorder")
 		.as(OrderError.class);
@@ -70,11 +77,11 @@ public class OrderControllerTest {
 	}
 	
 	@Test
-	public void sourceCurrencyMustExist() {
-		happyOrder.setSource(null);
+	public void sourceCurrencyMustExistForMarketOrder() {
+		happyMarketOrder.setSource(null);
 		OrderError error = RestAssured.given()
 		.contentType(ContentType.JSON)
-		.body(happyOrder)
+		.body(happyMarketOrder)
 		.when()
 		.post("/addorder")
 		.as(OrderError.class);
@@ -82,11 +89,11 @@ public class OrderControllerTest {
 	}
 	
 	@Test
-	public void destinationCurrencyMustExist() {
-		happyOrder.setDestination(null);
+	public void destinationCurrencyMustExistForMarketOrder() {
+		happyMarketOrder.setDestination(null);
 		OrderError error = RestAssured.given()
 		.contentType(ContentType.JSON)
-		.body(happyOrder)
+		.body(happyMarketOrder)
 		.when()
 		.post("/addorder")
 		.as(OrderError.class);
@@ -94,11 +101,11 @@ public class OrderControllerTest {
 	}
 	
 	@Test
-	public void currenciesCantBeIdentical() {
-		happyOrder.setDestination(Currency.USD);
+	public void currenciesCantBeIdenticalForMarketOrder() {
+		happyMarketOrder.setDestination(Currency.USD);
 		OrderError error = RestAssured.given()
 		.contentType(ContentType.JSON)
-		.body(happyOrder)
+		.body(happyMarketOrder)
 		.when()
 		.post("/addorder")
 		.as(OrderError.class);
@@ -106,15 +113,124 @@ public class OrderControllerTest {
 	}
 	
 	@Test
-	public void priceMustBeGreaterThanZero() {
-		happyOrder.setPrice(0);
+	public void priceMustBeGreaterThanZeroForMarketOrder() {
+		happyMarketOrder.setPrice(0);
 		OrderError error = RestAssured.given()
 		.contentType(ContentType.JSON)
-		.body(happyOrder)
+		.body(happyMarketOrder)
 		.when()
 		.post("/addorder")
 		.as(OrderError.class);
 		Assert.assertEquals(error, OrderError.PRICE_ZERO);
 	}
+	
+	@Test
+	public void returnsCorrectOrderForValidDataForLimitOrder() {
+		ForexOrder order = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyLimitOrder)
+		.when()
+		.post("/addorder")
+		.as(ForexOrder.class);
+		
+		ordersMatch(order, happyLimitOrder);
+	}
+	
+	@Test
+	public void quantityFailsWhenZeroForLimitOrder() {
+		happyMarketOrder.setQuantity(0);
+		OrderError error = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyMarketOrder)
+		.when()
+		.post("/addorder")
+		.as(OrderError.class);
+		Assert.assertEquals(error, OrderError.QUANTITY_ZERO);
+	}
+	
+	@Test
+	public void sourceCurrencyMustExistForLimitOrder() {
+		happyMarketOrder.setSource(null);
+		OrderError error = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyMarketOrder)
+		.when()
+		.post("/addorder")
+		.as(OrderError.class);
+		Assert.assertEquals(error, OrderError.CURRENCY_MISSING);
+	}
+	
+	@Test
+	public void destinationCurrencyMustExistForLimitOrder() {
+		happyMarketOrder.setDestination(null);
+		OrderError error = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyMarketOrder)
+		.when()
+		.post("/addorder")
+		.as(OrderError.class);
+		Assert.assertEquals(error, OrderError.CURRENCY_MISSING);
+	}
+	
+	@Test
+	public void currenciesCantBeIdenticalForLimitOrder() {
+		happyMarketOrder.setDestination(Currency.USD);
+		OrderError error = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyMarketOrder)
+		.when()
+		.post("/addorder")
+		.as(OrderError.class);
+		Assert.assertEquals(error, OrderError.CURRENCY_IDENTICAL);
+	}
+	
+	@Test
+	public void priceMustBeGreaterThanZeroForLimitOrder() {
+		happyMarketOrder.setPrice(0);
+		OrderError error = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyMarketOrder)
+		.when()
+		.post("/addorder")
+		.as(OrderError.class);
+		Assert.assertEquals(error, OrderError.PRICE_ZERO);
+	}
+	
+	@Test
+	public void insertMarketOrderSuccessfully() {
+		ForexOrder order = RestAssured.given()
+				.contentType(ContentType.JSON)
+				.body(happyMarketOrder)
+				.when()
+				.post("/addorder")
+				.as(ForexOrder.class);
+		long id = order.getId();
+		ForexOrder receivedOrder = RestAssured.given()
+				.contentType(ContentType.JSON)
+				.when()
+				.get("/getorder/" + id)
+				.as(ForexOrder.class);
+		ordersMatch(receivedOrder, order);
+		Assert.assertEquals(id, receivedOrder.getId());
+	}
+	
+	@Test
+	public void insertLimitOrderSuccessfully() {
+		ForexOrder order = RestAssured.given()
+				.contentType(ContentType.JSON)
+				.body(happyLimitOrder)
+				.when()
+				.post("/addorder")
+				.as(ForexOrder.class);
+		long id = order.getId();
+		ForexOrder receivedOrder = RestAssured.given()
+				.contentType(ContentType.JSON)
+				.when()
+				.get("/getorder/" + id)
+				.as(ForexOrder.class);
+		ordersMatch(receivedOrder, order);
+		Assert.assertEquals(id, receivedOrder.getId());
+	}
+	
 
 }

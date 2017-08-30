@@ -1,6 +1,6 @@
 package com.creditsuisse.london.forex_trader.orders;
 
-public enum Type {
+public enum TradeType {
 	MARKET,
 	LIMIT
 }

@@ -1,9 +1,11 @@
 package com.creditsuisse.london.forex_trader.repositories;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-import com.creditsuisse.london.forex_trader.orders.Order;
+import com.creditsuisse.london.forex_trader.orders.ForexOrder;
 
-public interface OrderRepository extends CrudRepository<Order, Long> {
+//@Repository
+public interface OrderRepository extends CrudRepository<ForexOrder, Long> {
 
 }

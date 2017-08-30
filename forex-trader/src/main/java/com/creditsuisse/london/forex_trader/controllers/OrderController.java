@@ -2,12 +2,14 @@ package com.creditsuisse.london.forex_trader.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.creditsuisse.london.forex_trader.orders.Order;
+import com.creditsuisse.london.forex_trader.orders.ForexOrder;
 import com.creditsuisse.london.forex_trader.orders.OrderError;
 import com.creditsuisse.london.forex_trader.repositories.OrderRepository;
 
@@ -21,16 +23,21 @@ public class OrderController {
 	}
 	
 	@RequestMapping(path="/addorder",method=RequestMethod.POST)
-	public Object addOrder(@RequestBody Order order) {
+	public Object addOrder(@RequestBody ForexOrder order) {
 		OrderError errorType = generateDataErrorString(order);
 		if (errorType != null) {
 			return new ResponseEntity<OrderError>(errorType, HttpStatus.BAD_REQUEST);
 		}
-		orderRepository.save(order);
-		return new ResponseEntity<Order>(order, HttpStatus.ACCEPTED);
+		this.orderRepository.save(order);
+		return new ResponseEntity<ForexOrder>(order, HttpStatus.ACCEPTED);
+	}
+	
+	@RequestMapping(path="/getorder/{id}",method=RequestMethod.GET)
+	public Object getOrderById(@PathVariable Long id) {
+		return this.orderRepository.findOne(id);
 	}
 
-	private OrderError generateDataErrorString(Order order) {
+	private OrderError generateDataErrorString(ForexOrder order) {
 		if (order.getQuantity() <= 0) {
 			return OrderError.QUANTITY_ZERO;
 		}
