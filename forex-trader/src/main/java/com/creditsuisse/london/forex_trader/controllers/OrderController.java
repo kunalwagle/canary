@@ -31,6 +31,10 @@ public class OrderController {
 			return OrderError.CURRENCY_MISSING;
 		}
 		
+		if (order.getSource() == order.getDestination()) {
+			return OrderError.CURRENCY_IDENTICAL;
+		}
+		
 		return null;
 	}
 

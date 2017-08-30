@@ -92,5 +92,17 @@ public class OrderControllerTest {
 		.as(OrderError.class);
 		Assert.assertEquals(error, OrderError.CURRENCY_MISSING);
 	}
+	
+	@Test
+	public void currenciesCantBeIdentical() {
+		happyOrder.setDestination(Currency.USD);
+		OrderError error = RestAssured.given()
+		.contentType(ContentType.JSON)
+		.body(happyOrder)
+		.when()
+		.post("/addorder")
+		.as(OrderError.class);
+		Assert.assertEquals(error, OrderError.CURRENCY_IDENTICAL);
+	}
 
 }
