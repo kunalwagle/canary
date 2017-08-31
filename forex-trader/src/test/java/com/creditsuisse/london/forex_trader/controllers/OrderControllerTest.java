@@ -37,8 +37,8 @@ public class OrderControllerTest {
     @Before
     public void initialise() {
     	RestAssured.port = port;
-    	happyMarketOrder = new ForexOrder(3, 10, "2015-10-04_18:00:00.050", Currency.USD, Currency.GBP, TradeType.MARKET, BuySell.BUY);
-    	happyLimitOrder = new ForexOrder(6, 22, "2016-10-09_13:14:00.050", Currency.USD, Currency.GBP, TradeType.LIMIT, BuySell.SELL);
+    	happyMarketOrder = new ForexOrder(3, 10, "2015-10-04_18:00:00.050", Currency.USD, Currency.GBP, TradeType.MARKET, BuySell.BUY, true);
+    	happyLimitOrder = new ForexOrder(6, 22, "2016-10-09_13:14:00.050", Currency.USD, Currency.GBP, TradeType.LIMIT, BuySell.SELL, false);
     }
     
     private void ordersMatch(ForexOrder order, ForexOrder happyOrder) {
@@ -49,6 +49,7 @@ public class OrderControllerTest {
 		Assert.assertEquals(order.getDestination(), happyOrder.getDestination());
 		Assert.assertEquals(order.getSource(), happyOrder.getSource());
 		Assert.assertEquals(order.getTradeType(), happyOrder.getTradeType());
+		Assert.assertEquals(order.isCompleted(), happyOrder.isCompleted());
     }
 	
 	@Test
@@ -231,6 +232,24 @@ public class OrderControllerTest {
 		ordersMatch(receivedOrder, order);
 		Assert.assertEquals(id, receivedOrder.getId());
 	}
+	
+	@Test
+    public void doesNotDeleteMarketOrderIfCompleted() {
+        ForexOrder order = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(happyMarketOrder)
+                .when()
+                .post("/addorder")
+                .as(ForexOrder.class);
+        long id = order.getId();
+        OrderError error = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/deleteorder/" + id)
+                .as(OrderError.class);
+        Assert.assertEquals(error, OrderError.CANNOT_DELETE_COMPLETED_ORDER);
+    
+    }
 	
 
 }

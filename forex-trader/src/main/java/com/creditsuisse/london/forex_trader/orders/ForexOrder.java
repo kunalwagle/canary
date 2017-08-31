@@ -21,6 +21,7 @@ public class ForexOrder implements Serializable {
 	private int quantity;
 	private float price;
 	private String tradeDate;
+	private boolean isCompleted;
 	
 	@Enumerated(EnumType.STRING)
 	private Currency source;
@@ -36,7 +37,7 @@ public class ForexOrder implements Serializable {
 	}
 	
 	public ForexOrder(int quantity, float price, String tradeDate, Currency source, Currency destination, TradeType tradeType,
-			BuySell buySell) {
+			BuySell buySell, boolean isCompleted) {
 		this();
 		this.quantity = quantity;
 		this.price = price;
@@ -45,6 +46,7 @@ public class ForexOrder implements Serializable {
 		this.destination = destination;
 		this.tradeType = tradeType;
 		this.buySell = buySell;
+		this.setCompleted(isCompleted);
 	}
 
 	public long getId() {
@@ -109,6 +111,14 @@ public class ForexOrder implements Serializable {
 
 	public void setBuySell(BuySell buySell) {
 		this.buySell = buySell;
+	}
+
+	public boolean isCompleted() {
+		return isCompleted;
+	}
+
+	public void setCompleted(boolean isCompleted) {
+		this.isCompleted = isCompleted;
 	}
 
 

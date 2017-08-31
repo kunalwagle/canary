@@ -36,6 +36,19 @@ public class OrderController {
 	public Object getOrderById(@PathVariable Long id) {
 		return this.orderRepository.findOne(id);
 	}
+	
+    @RequestMapping(path="/deleteorder/{id}",method=RequestMethod.DELETE)
+    public Object deleteOrderById(@PathVariable Long id) {
+    	ForexOrder order = this.orderRepository.findOne(id);
+    	if (order.isCompleted()) {
+            return OrderError.CANNOT_DELETE_COMPLETED_ORDER;
+        }   
+        this.orderRepository.delete(id);
+        if (!orderRepository.exists(id)) {
+        	return new ResponseEntity<String>("Deleted order", HttpStatus.ACCEPTED);
+        }
+        return null;
+    }
 
 	private OrderError generateDataErrorString(ForexOrder order) {
 		if (order.getQuantity() <= 0) {
@@ -53,6 +66,8 @@ public class OrderController {
 		if (order.getPrice() <= 0) {
 			return OrderError.PRICE_ZERO;
 		}
+		
+		
 		
 		return null;
 	}
