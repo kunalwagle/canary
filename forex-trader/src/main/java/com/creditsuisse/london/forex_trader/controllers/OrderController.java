@@ -41,7 +41,7 @@ public class OrderController {
     public Object deleteOrderById(@PathVariable Long id) {
     	ForexOrder order = this.orderRepository.findOne(id);
     	if (order.isCompleted()) {
-            return OrderError.CANNOT_DELETE_COMPLETED_ORDER;
+            return new ResponseEntity<OrderError>(OrderError.CANNOT_DELETE_COMPLETED_ORDER, HttpStatus.BAD_REQUEST);
         }   
         this.orderRepository.delete(id);
         if (!orderRepository.exists(id)) {

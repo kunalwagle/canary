@@ -241,11 +241,11 @@ public class OrderControllerTest {
                 .when()
                 .post("/addorder")
                 .as(ForexOrder.class);
-        long id = order.getId();
+       Long id = order.getId();
         OrderError error = RestAssured.given()
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/deleteorder/" + id)
+                .delete("/deleteorder/" + id)
                 .as(OrderError.class);
         Assert.assertEquals(error, OrderError.CANNOT_DELETE_COMPLETED_ORDER);
     
