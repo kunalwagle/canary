@@ -218,9 +218,21 @@ public class OrderControllerTest {
 		streamOrders.add(new StreamOrder("GBP/USD", "1000", "80", "2017-06-0714:00:00"));
 		streamOrders.add(new StreamOrder("EUR/GBP", "1000", "80", "2017-06-0514:00:00"));
 		streamOrders.add(new StreamOrder("EUR/GBP", "1000", "80", "2017-06-0114:00:00"));
-		StreamOrder streamOrder = OrderController.findMostRecentCurrencyPairing(streamOrders, "EUR/GBP");
-		Assert.assertEquals(streamOrders.get(1).getCurrencyPair(), streamOrder.getCurrencyPair());
-		Assert.assertEquals(streamOrders.get(1).getDate(), streamOrder.getDate());
+		List<StreamOrder> streamOrder = OrderController.findMostRecentCurrencyPairing(streamOrders, "EUR/GBP");
+		Assert.assertEquals(false, streamOrder.contains(streamOrders.get(0)));
+		Assert.assertEquals(2, streamOrder.size());
+	}
+	
+	@Test
+	public void findsLowerPrices() {
+		List<StreamOrder> streamOrders = new ArrayList<>();
+		streamOrders.add(new StreamOrder("EUR/GBP", "490", "80", "2017-06-0714:00:00"));
+		streamOrders.add(new StreamOrder("EUR/GBP", "850", "80", "2017-06-0514:00:00"));
+		streamOrders.add(new StreamOrder("EUR/GBP", "600", "80", "2017-06-0114:00:00"));
+		List<StreamOrder> streamOrder = OrderController.lowerPricedTrades(streamOrders, "800");
+		Assert.assertEquals(false, streamOrder.contains(streamOrders.get(1)));
+		Assert.assertEquals(2, streamOrder.size());
+		Assert.assertEquals(streamOrder.get(0), streamOrders.get(2));
 	}
 	
 	

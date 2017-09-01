@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +66,23 @@ public class OrderController {
 		
 		return null;
 	}
+	
+	public static List<StreamOrder> lowerPricedTrades(List<StreamOrder> streamOrders, String p) {
+		double price = Double.parseDouble(p);
+		List<StreamOrder> result = streamOrders.stream().filter(order -> Double.parseDouble(order.getPrice())<price).collect(Collectors.toList());
+		Collections.sort(result, new Comparator<StreamOrder>() {
+
+			@Override
+			public int compare(StreamOrder o1, StreamOrder o2) {
+				Double price1 = Double.parseDouble(o1.getPrice());
+				Double price2 = Double.parseDouble(o2.getPrice());
+				return price2.compareTo(price1);
+			}
+			
+		});
+		
+		return result;
+	}
 
 	public static List<StreamOrder> orderTrades(List<StreamOrder> streamOrders) {
 		
@@ -112,8 +130,8 @@ public class OrderController {
 		
 	}
 
-	public static StreamOrder findMostRecentCurrencyPairing(List<StreamOrder> streamOrders, String currencyPair) {
-		return streamOrders.stream().filter(order -> order.getCurrencyPair().equals(currencyPair)).findFirst().get();
+	public static List<StreamOrder> findMostRecentCurrencyPairing(List<StreamOrder> streamOrders, String currencyPair) {
+		return streamOrders.stream().filter(order -> order.getCurrencyPair().equals(currencyPair)).collect(Collectors.toList());
 	}
 
 }
