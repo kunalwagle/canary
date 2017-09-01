@@ -1,4 +1,4 @@
-package com.creditsuisse.london.forex_trader;
+package com.creditsuisse.london.stream_emulator;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,12 +7,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Hello world!
  *
  */
+
 @SpringBootApplication
 public class App 
 {
+	
     public static void main( String[] args )
     {
         SpringApplication.run(App.class, args);
-        
     }
 }

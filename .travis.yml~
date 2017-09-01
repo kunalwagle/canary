@@ -1,0 +1,9 @@
+language: java
+jdk:
+- oraclejdk8
+<<<<<<< HEAD
+before_script: cd forex-trader
+=======
+before_script: cd project
+>>>>>>> story8
+script: mvn clean verify
