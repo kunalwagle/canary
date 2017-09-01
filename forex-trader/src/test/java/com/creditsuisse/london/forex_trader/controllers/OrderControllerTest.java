@@ -1,6 +1,7 @@
 package com.creditsuisse.london.forex_trader.controllers;
 
-import org.apache.http.HttpStatus;
+
+import org.springframework.http.HttpStatus;
 import org.apache.http.impl.bootstrap.HttpServer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,6 +14,7 @@ import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 import com.creditsuisse.london.forex_trader.App;
 import com.creditsuisse.london.forex_trader.orders.BuySell;
@@ -30,6 +32,7 @@ public class OrderControllerTest {
     
     private ForexOrder happyMarketOrder;
     private ForexOrder happyLimitOrder;
+    private ForexOrder incompleteMarketOrder;
     
     @LocalServerPort
     private int port;
@@ -39,6 +42,7 @@ public class OrderControllerTest {
     	RestAssured.port = port;
     	happyMarketOrder = new ForexOrder(3, 10, "2015-10-04_18:00:00.050", Currency.USD, Currency.GBP, TradeType.MARKET, BuySell.BUY, true);
     	happyLimitOrder = new ForexOrder(6, 22, "2016-10-09_13:14:00.050", Currency.USD, Currency.GBP, TradeType.LIMIT, BuySell.SELL, false);
+    	incompleteMarketOrder = new ForexOrder(15, 13, "2016-07-05 09:24:00:050", Currency.EUR, Currency.GBP, TradeType.MARKET, BuySell.SELL, false);
     }
     
     private void ordersMatch(ForexOrder order, ForexOrder happyOrder) {
@@ -248,6 +252,22 @@ public class OrderControllerTest {
                 .delete("/deleteorder/" + id)
                 .as(OrderError.class);
         Assert.assertEquals(error, OrderError.CANNOT_DELETE_COMPLETED_ORDER);
+    
+    }
+	
+	@Test
+    public void doesDeleteMarketOrderIfIncomplete() {
+        ForexOrder order = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(incompleteMarketOrder)
+                .when()
+                .post("/addorder")
+                .as(ForexOrder.class);
+       Long id = order.getId();
+       RestAssured.given()
+                .contentType(ContentType.JSON)
+                .when()
+                .delete("/deleteorder/" + id).then().statusCode(HttpStatus.ACCEPTED.value()); 
     
     }
 	

@@ -45,7 +45,7 @@ public class OrderController {
         }   
         this.orderRepository.delete(id);
         if (!orderRepository.exists(id)) {
-        	return new ResponseEntity<String>("Deleted order", HttpStatus.ACCEPTED);
+        	return new ResponseEntity<HttpStatus>(HttpStatus.ACCEPTED);
         }
         return null;
     }
