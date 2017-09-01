@@ -212,6 +212,18 @@ public class OrderControllerTest {
 		Assert.assertEquals("2017-06-0114:00:00", result.get(2).getDate());
 	}
 	
+	@Test
+	public void findsMostRecentCurrencyPairing() {
+		List<StreamOrder> streamOrders = new ArrayList<>();
+		streamOrders.add(new StreamOrder("GBP/USD", "1000", "80", "2017-06-0714:00:00"));
+		streamOrders.add(new StreamOrder("EUR/GBP", "1000", "80", "2017-06-0514:00:00"));
+		streamOrders.add(new StreamOrder("EUR/GBP", "1000", "80", "2017-06-0114:00:00"));
+		StreamOrder streamOrder = OrderController.findMostRecentCurrencyPairing(streamOrders, "EUR/GBP");
+		Assert.assertEquals(streamOrders.get(1).getCurrencyPair(), streamOrder.getCurrencyPair());
+		Assert.assertEquals(streamOrders.get(1).getDate(), streamOrder.getDate());
+	}
+	
+	
 	//Integration Tests
 	
 	@Test

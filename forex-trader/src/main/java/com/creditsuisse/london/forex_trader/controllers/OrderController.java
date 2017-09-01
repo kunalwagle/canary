@@ -112,4 +112,8 @@ public class OrderController {
 		
 	}
 
+	public static StreamOrder findMostRecentCurrencyPairing(List<StreamOrder> streamOrders, String currencyPair) {
+		return streamOrders.stream().filter(order -> order.getCurrencyPair().equals(currencyPair)).findFirst().get();
+	}
+
 }
