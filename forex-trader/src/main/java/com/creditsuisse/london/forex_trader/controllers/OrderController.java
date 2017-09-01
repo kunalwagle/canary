@@ -22,14 +22,21 @@ public class OrderController {
 		this.orderRepository = orderRepository;
 	}
 	
+	
 	@RequestMapping(path="/addorder",method=RequestMethod.POST)
-	public Object addOrder(@RequestBody ForexOrder order) {
+	
+	public Object addOrder(@RequestBody ForexOrder order) 
+	{
 		OrderError errorType = generateDataErrorString(order);
 		if (errorType != null) {
 			return new ResponseEntity<OrderError>(errorType, HttpStatus.BAD_REQUEST);
 		}
 		this.orderRepository.save(order);
 		return new ResponseEntity<ForexOrder>(order, HttpStatus.ACCEPTED);
+	}
+	
+	public Object addOrder_Fallback(@RequestBody ForexOrder order) {
+		return HttpStatus.SERVICE_UNAVAILABLE;
 	}
 	
 	@RequestMapping(path="/getorder/{id}",method=RequestMethod.GET)
