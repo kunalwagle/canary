@@ -31,7 +31,7 @@ public class StreamController {
 	private boolean withinRange(String date, String start, String end) {
 		DateFormat smallFormat = new SimpleDateFormat("yyyy-MM-dd");
 		try {
-			Date originalDate = smallFormat.parse(date.substring(0, 11));	
+			Date originalDate = smallFormat.parse(date.substring(0, 10));	
 			Date startDate = smallFormat.parse(start);
 			Date endDate = smallFormat.parse(end);
 			return !originalDate.before(startDate) && !originalDate.after(endDate);
