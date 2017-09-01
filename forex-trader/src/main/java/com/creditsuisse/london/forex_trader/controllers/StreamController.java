@@ -9,6 +9,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +24,12 @@ import com.creditsuisse.london.forex_trader.orders.StreamOrder;
 @RestController
 public class StreamController {
 	
+	@Autowired
+	Environment environment;
+	
 	@RequestMapping(path = "/stream/{start}/{end}", method = RequestMethod.GET)
 	public List<StreamOrder> getOrders(@PathVariable String start, @PathVariable String end) {
-		ResponseEntity<StreamOrder[]> orders = new RestTemplate().getForEntity("http://localhost:8080/emulatedstream", StreamOrder[].class);
+		ResponseEntity<StreamOrder[]> orders = new RestTemplate().getForEntity("http://localhost:" + environment.getProperty("local.server.port") + "/emulatedstream", StreamOrder[].class);
 		List<StreamOrder> stream = new ArrayList<StreamOrder>(Arrays.asList(orders.getBody()));
 		return stream.stream().filter(order -> withinRange(order.getDate(), start, end)).collect(Collectors.toList());
 	}
