@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.creditsuisse.london.forex_trader.orders.ForexOrder;
 import com.creditsuisse.london.forex_trader.orders.OrderError;
 import com.creditsuisse.london.forex_trader.repositories.OrderRepository;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RestController
 public class OrderController {
@@ -22,9 +23,8 @@ public class OrderController {
 		this.orderRepository = orderRepository;
 	}
 	
-	
+	@HystrixCommand(fallbackMethod = "orderFallback")
 	@RequestMapping(path="/addorder",method=RequestMethod.POST)
-	
 	public Object addOrder(@RequestBody ForexOrder order) 
 	{
 		OrderError errorType = generateDataErrorString(order);
@@ -35,15 +35,15 @@ public class OrderController {
 		return new ResponseEntity<ForexOrder>(order, HttpStatus.ACCEPTED);
 	}
 	
-	public Object addOrder_Fallback(@RequestBody ForexOrder order) {
-		return HttpStatus.SERVICE_UNAVAILABLE;
-	}
 	
+	@HystrixCommand(fallbackMethod = "orderFallback")
 	@RequestMapping(path="/getorder/{id}",method=RequestMethod.GET)
 	public Object getOrderById(@PathVariable Long id) {
 		return this.orderRepository.findOne(id);
 	}
 	
+	
+	@HystrixCommand(fallbackMethod = "deleteOrderFallback")
     @RequestMapping(path="/deleteorder/{id}",method=RequestMethod.DELETE)
     public Object deleteOrderById(@PathVariable Long id) {
     	ForexOrder order = this.orderRepository.findOne(id);
@@ -56,6 +56,14 @@ public class OrderController {
         }
         return null;
     }
+	
+	public Object orderFallback(@RequestBody ForexOrder order) {
+		return new ResponseEntity<HttpStatus>(HttpStatus.SERVICE_UNAVAILABLE);
+	}
+	
+	public Object deleteOrderFallback(@PathVariable Long id) {
+		return new ResponseEntity<HttpStatus>(HttpStatus.SERVICE_UNAVAILABLE);
+	}
 
 	private OrderError generateDataErrorString(ForexOrder order) {
 		if (order.getQuantity() <= 0) {
