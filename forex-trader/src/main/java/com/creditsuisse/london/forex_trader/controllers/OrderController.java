@@ -1,5 +1,13 @@
 package com.creditsuisse.london.forex_trader.controllers;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.creditsuisse.london.forex_trader.orders.ForexOrder;
 import com.creditsuisse.london.forex_trader.orders.OrderError;
+import com.creditsuisse.london.forex_trader.orders.StreamOrder;
 import com.creditsuisse.london.forex_trader.repositories.OrderRepository;
 
 @RestController
@@ -37,7 +46,7 @@ public class OrderController {
 		return this.orderRepository.findOne(id);
 	}
 
-	private OrderError generateDataErrorString(ForexOrder order) {
+	private static OrderError generateDataErrorString(ForexOrder order) {
 		if (order.getQuantity() <= 0) {
 			return OrderError.QUANTITY_ZERO;
 		}
@@ -55,6 +64,52 @@ public class OrderController {
 		}
 		
 		return null;
+	}
+
+	public static List<StreamOrder> orderTrades(List<StreamOrder> streamOrders) {
+		
+		List<DatedStreamOrder> datedOrders = streamOrders.stream().map(DatedStreamOrder::new).collect(Collectors.toList());
+		
+		Collections.sort(datedOrders);
+		
+		return datedOrders.stream().map(DatedStreamOrder::getStreamOrder).collect(Collectors.toList());
+	}
+	
+	private static class DatedStreamOrder implements Comparable<DatedStreamOrder> {
+		
+		private StreamOrder streamOrder;
+		private Date date;
+		
+		public DatedStreamOrder(StreamOrder streamOrder) {
+			super();
+			this.streamOrder = streamOrder;
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss");
+			Date date;
+			try {
+				date = dateFormat.parse(streamOrder.getDate());
+				this.date = date;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+
+		public StreamOrder getStreamOrder() {
+			return streamOrder;
+		}
+
+
+		public Date getDate() {
+			return date;
+		}
+
+
+		@Override
+		public int compareTo(DatedStreamOrder o) {
+			return o.getDate().compareTo(date);
+		}
+		
+		
+		
 	}
 
 }

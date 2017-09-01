@@ -1,5 +1,8 @@
 package com.creditsuisse.london.forex_trader.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.bootstrap.HttpServer;
 import org.junit.Assert;
@@ -19,6 +22,7 @@ import com.creditsuisse.london.forex_trader.orders.BuySell;
 import com.creditsuisse.london.forex_trader.orders.Currency;
 import com.creditsuisse.london.forex_trader.orders.ForexOrder;
 import com.creditsuisse.london.forex_trader.orders.OrderError;
+import com.creditsuisse.london.forex_trader.orders.StreamOrder;
 import com.creditsuisse.london.forex_trader.orders.TradeType;
 
 import io.restassured.RestAssured;
@@ -195,6 +199,20 @@ public class OrderControllerTest {
 		.as(OrderError.class);
 		Assert.assertEquals(error, OrderError.PRICE_ZERO);
 	}
+	
+	@Test
+	public void ordersTradesByDateSuccessfully() {
+		List<StreamOrder> streamOrders = new ArrayList<>();
+		streamOrders.add(new StreamOrder("GBP/USD", "1000", "80", "2017-06-0114:00:00"));
+		streamOrders.add(new StreamOrder("GBP/USD", "1000", "80", "2017-06-0714:00:00"));
+		streamOrders.add(new StreamOrder("GBP/USD", "1000", "80", "2017-06-0514:00:00"));
+		List<StreamOrder> result = OrderController.orderTrades(streamOrders);
+		Assert.assertEquals("2017-06-0714:00:00", result.get(0).getDate());
+		Assert.assertEquals("2017-06-0514:00:00", result.get(1).getDate());
+		Assert.assertEquals("2017-06-0114:00:00", result.get(2).getDate());
+	}
+	
+	//Integration Tests
 	
 	@Test
 	public void insertMarketOrderSuccessfully() {
