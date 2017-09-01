@@ -271,5 +271,18 @@ public class OrderControllerTest {
     
     }
 	
+	@Test
+	public void checkAddOrderFallbackMethodIsCalledWhenCircuitBreakerActivated() {
+		
+		
+
+		  RestAssured.given()
+	                .contentType(ContentType.JSON)
+	                .body(happyMarketOrder)
+	                .when()
+	                .post("/addorder").then().statusCode(HttpStatus.SERVICE_UNAVAILABLE.value());
+		
+	}
+	
 
 }

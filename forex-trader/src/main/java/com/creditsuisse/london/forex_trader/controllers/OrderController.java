@@ -36,7 +36,8 @@ public class OrderController {
 	}
 	
 	
-	@HystrixCommand(fallbackMethod = "orderFallback")
+	@HystrixCommand(fallbackMethod = "orderFallback", commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "5")})
 	@RequestMapping(path="/getorder/{id}",method=RequestMethod.GET)
 	public Object getOrderById(@PathVariable Long id) {
 		return this.orderRepository.findOne(id);
