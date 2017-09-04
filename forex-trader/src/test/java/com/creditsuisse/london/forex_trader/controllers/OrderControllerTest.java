@@ -1,7 +1,9 @@
 package com.creditsuisse.london.forex_trader.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
 
-import org.springframework.http.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.apache.http.impl.bootstrap.HttpServer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,6 +23,7 @@ import com.creditsuisse.london.forex_trader.orders.BuySell;
 import com.creditsuisse.london.forex_trader.orders.Currency;
 import com.creditsuisse.london.forex_trader.orders.ForexOrder;
 import com.creditsuisse.london.forex_trader.orders.OrderError;
+import com.creditsuisse.london.forex_trader.orders.StreamOrder;
 import com.creditsuisse.london.forex_trader.orders.TradeType;
 
 import io.restassured.RestAssured;
@@ -40,9 +43,10 @@ public class OrderControllerTest {
     @Before
     public void initialise() {
     	RestAssured.port = port;
-    	happyMarketOrder = new ForexOrder(3, 10, "2015-10-04_18:00:00.050", Currency.USD, Currency.GBP, TradeType.MARKET, BuySell.BUY, true);
-    	happyLimitOrder = new ForexOrder(6, 22, "2016-10-09_13:14:00.050", Currency.USD, Currency.GBP, TradeType.LIMIT, BuySell.SELL, false);
+    	happyMarketOrder = new ForexOrder(3, 10, "2015-10-04_18:00:00.050", Currency.USD, Currency.GBP, TradeType.MARKET, BuySell.SELL, true);
+    	happyLimitOrder = new ForexOrder(6, 22, "2016-10-09_13:14:00.050", Currency.USD, Currency.GBP, TradeType.LIMIT, BuySell.BUY, false);
     	incompleteMarketOrder = new ForexOrder(15, 13, "2016-07-05 09:24:00:050", Currency.EUR, Currency.GBP, TradeType.MARKET, BuySell.SELL, false);
+
     }
     
     private void ordersMatch(ForexOrder order, ForexOrder happyOrder) {
@@ -202,6 +206,57 @@ public class OrderControllerTest {
 	}
 	
 	@Test
+	public void ordersTradesByDateSuccessfully() {
+		List<StreamOrder> streamOrders = new ArrayList<>();
+		streamOrders.add(new StreamOrder("GBP/USD", "1000", "80", "2017-06-0114:00:00"));
+		streamOrders.add(new StreamOrder("GBP/USD", "1000", "80", "2017-06-0714:00:00"));
+		streamOrders.add(new StreamOrder("GBP/USD", "1000", "80", "2017-06-0514:00:00"));
+		List<StreamOrder> result = OrderController.orderTrades(streamOrders);
+		Assert.assertEquals("2017-06-0714:00:00", result.get(0).getDate());
+		Assert.assertEquals("2017-06-0514:00:00", result.get(1).getDate());
+		Assert.assertEquals("2017-06-0114:00:00", result.get(2).getDate());
+	}
+	
+	@Test
+	public void findsMostRecentCurrencyPairing() {
+		List<StreamOrder> streamOrders = new ArrayList<>();
+		streamOrders.add(new StreamOrder("GBP/USD", "1000", "80", "2017-06-0714:00:00"));
+		streamOrders.add(new StreamOrder("EUR/GBP", "1000", "80", "2017-06-0514:00:00"));
+		streamOrders.add(new StreamOrder("EUR/GBP", "1000", "80", "2017-06-0114:00:00"));
+		List<StreamOrder> streamOrder = OrderController.findMostRecentCurrencyPairing(streamOrders, "EUR/GBP");
+		Assert.assertEquals(false, streamOrder.contains(streamOrders.get(0)));
+		Assert.assertEquals(2, streamOrder.size());
+	}
+	
+	@Test
+	public void findsLowerPrices() {
+		List<StreamOrder> streamOrders = new ArrayList<>();
+		streamOrders.add(new StreamOrder("EUR/GBP", "490", "80", "2017-06-0714:00:00"));
+		streamOrders.add(new StreamOrder("EUR/GBP", "850", "80", "2017-06-0514:00:00"));
+		streamOrders.add(new StreamOrder("EUR/GBP", "600", "80", "2017-06-0114:00:00"));
+		List<StreamOrder> streamOrder = OrderController.lowerPricedTrades(streamOrders, 800);
+		Assert.assertEquals(false, streamOrder.contains(streamOrders.get(1)));
+		Assert.assertEquals(2, streamOrder.size());
+		Assert.assertEquals(streamOrder.get(0), streamOrders.get(2));
+	}
+	
+	@Test
+	public void matchesLimitOrdersThatExceedCurrentLowestAskPrice() {
+		boolean orderMatches = OrderController.matchOrders(happyLimitOrder);
+		Assert.assertEquals(false, orderMatches);
+	}
+	
+	@Test
+	public void doesntMatchLimitOrdersIfThereAreNoneCheaper() {
+		happyLimitOrder.setPrice(0);
+		boolean orderMatches = OrderController.matchOrders(happyLimitOrder);
+		Assert.assertEquals(false, orderMatches);
+	}
+	
+	
+	//Integration Tests
+	
+	@Test
 	public void insertMarketOrderSuccessfully() {
 		ForexOrder order = RestAssured.given()
 				.contentType(ContentType.JSON)
@@ -267,7 +322,7 @@ public class OrderControllerTest {
        RestAssured.given()
                 .contentType(ContentType.JSON)
                 .when()
-                .delete("/deleteorder/" + id).then().statusCode(HttpStatus.ACCEPTED.value()); 
+                .delete("/deleteorder/" + id).then().statusCode(HttpStatus.SC_ACCEPTED); 
     
     }
 	
