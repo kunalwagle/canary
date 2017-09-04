@@ -110,6 +110,8 @@ public class ForexOrder implements Serializable {
 	public void setBuySell(BuySell buySell) {
 		this.buySell = buySell;
 	}
+	
+	
 
 
 	

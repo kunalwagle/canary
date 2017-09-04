@@ -41,8 +41,8 @@ public class OrderControllerTest {
     @Before
     public void initialise() {
     	RestAssured.port = port;
-    	happyMarketOrder = new ForexOrder(3, 10, "2015-10-04_18:00:00.050", Currency.USD, Currency.GBP, TradeType.MARKET, BuySell.BUY);
-    	happyLimitOrder = new ForexOrder(6, 22, "2016-10-09_13:14:00.050", Currency.USD, Currency.GBP, TradeType.LIMIT, BuySell.SELL);
+    	happyMarketOrder = new ForexOrder(3, 10, "2015-10-04_18:00:00.050", Currency.USD, Currency.GBP, TradeType.MARKET, BuySell.SELL);
+    	happyLimitOrder = new ForexOrder(6, 22, "2016-10-09_13:14:00.050", Currency.GBP, Currency.USD, TradeType.LIMIT, BuySell.BUY);
     }
     
     private void ordersMatch(ForexOrder order, ForexOrder happyOrder) {
@@ -229,10 +229,23 @@ public class OrderControllerTest {
 		streamOrders.add(new StreamOrder("EUR/GBP", "490", "80", "2017-06-0714:00:00"));
 		streamOrders.add(new StreamOrder("EUR/GBP", "850", "80", "2017-06-0514:00:00"));
 		streamOrders.add(new StreamOrder("EUR/GBP", "600", "80", "2017-06-0114:00:00"));
-		List<StreamOrder> streamOrder = OrderController.lowerPricedTrades(streamOrders, "800");
+		List<StreamOrder> streamOrder = OrderController.lowerPricedTrades(streamOrders, 800);
 		Assert.assertEquals(false, streamOrder.contains(streamOrders.get(1)));
 		Assert.assertEquals(2, streamOrder.size());
 		Assert.assertEquals(streamOrder.get(0), streamOrders.get(2));
+	}
+	
+	@Test
+	public void matchesLimitOrdersThatExceedCurrentLowestAskPrice() {
+		boolean orderMatches = OrderController.matchOrders(happyLimitOrder);
+		Assert.assertEquals(true, orderMatches);
+	}
+	
+	@Test
+	public void doesntMatchLimitOrdersIfThereAreNoneCheaper() {
+		happyLimitOrder.setPrice(0);
+		boolean orderMatches = OrderController.matchOrders(happyLimitOrder);
+		Assert.assertEquals(false, orderMatches);
 	}
 	
 	
